@@ -6,9 +6,15 @@ import { ChatContext } from "../../context/ChatContext";
 import { formatDateTime } from "./MessageTime";
 import { FcLike } from "react-icons/fc";
 import { AiFillLike } from "react-icons/ai";
-import { likeMessage } from "../../redux/reducers/messageReducer";
+// import { likeMessage } from "../../redux/reducers/messageReducer";
 
-const MessageList = ({ dispatch, messages, loading, userId }) => {
+const MessageList = ({
+  dispatch,
+  messages,
+  loading,
+  userId,
+  handleLikeMessage,
+}) => {
   const { selectedGroupId } = useContext(ChatContext);
 
   const [groupMessages, setGroupMessages] = useState([]);
@@ -27,15 +33,19 @@ const MessageList = ({ dispatch, messages, loading, userId }) => {
     setGroupMessages([]);
     if (messages[selectedGroupId]) {
       setGroupMessages(messages[selectedGroupId]);
-      // Scroll to the bottom of the div on initial render and whenever content changes
-      if (scrollRef.current) {
-        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-      }
     }
   }, [messages, selectedGroupId]);
 
+  useEffect(() => {
+    // Scroll to the bottom of the div on initial render
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, []);
+
   const manageLikes = (groupId, messageContent) => {
-    dispatch(likeMessage({ groupId, messageContent, userId }));
+    // dispatch(likeMessage({ groupId, messageContent, userId }));
+    handleLikeMessage(groupId, messageContent, userId);
   };
 
   if (loading && groupMessages.length === 0) {
@@ -110,7 +120,7 @@ const MessageList = ({ dispatch, messages, loading, userId }) => {
                   <div className="m-0 bg-gray-200 rounded-t-lg px-2 py-1">
                     {eachMessage.senderId.username}
                   </div>
-                  <div className="px-5 pb-2 flex flex-col">
+                  <div className="px-5 pb-2 flex flex-col pt-1">
                     <div className="truncate whitespace-normal pt-1">
                       {eachMessage.content}
                     </div>

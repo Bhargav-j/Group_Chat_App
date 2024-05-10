@@ -8,6 +8,7 @@ import useGroups from "../../hooks/useGroups";
 import { connect } from "react-redux";
 import useAuthState from "../../hooks/useAuthState";
 import {
+  likeMessage,
   receiveLastSingleMessage,
   receiveMessage,
   sendMessage,
@@ -67,6 +68,13 @@ const ChatMainContainer = ({ dispatch, messages }) => {
       dispatch(receiveLastSingleMessage({ group: groupId, message }));
     });
 
+    socketRef.current.on(
+      "receive-like",
+      ([groupId, messageContent, userId]) => {
+        dispatch(likeMessage({ groupId, messageContent, userId }));
+      }
+    );
+
     socketRef.current.on("receive-lastSingle-messages", ([group, message]) => {
       dispatch(receiveLastSingleMessage({ group, message }));
     });
@@ -106,6 +114,12 @@ const ChatMainContainer = ({ dispatch, messages }) => {
     );
   };
 
+  const handleLikeMessage = async (groupId, messageContent, userId) => {
+    dispatch(likeMessage({ groupId, messageContent, userId }));
+
+    socketRef.current.emit("like-message", groupId, messageContent, userId);
+  };
+
   return (
     <main className="w-3/4 h-full flex flex-col">
       {selectedGroupId ? (
@@ -113,7 +127,7 @@ const ChatMainContainer = ({ dispatch, messages }) => {
           <GroupHeader group={SelectedGroup} />
 
           {/* Chat messages */}
-          <MessageList />
+          <MessageList handleLikeMessage={handleLikeMessage} />
 
           {/* Messages Type Container */}
           <MessageInput handleSendMessage={handleSendMessage} />
@@ -128,7 +142,7 @@ const ChatMainContainer = ({ dispatch, messages }) => {
 // export default ChatMainContainer;
 
 const mapStateToProps = (state) => ({
-  messages: state.messages.messages
+  messages: state.messages.messages,
 });
 
 // Connect your component to Redux and export it with a name

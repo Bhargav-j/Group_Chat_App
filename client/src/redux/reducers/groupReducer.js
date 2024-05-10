@@ -89,7 +89,6 @@ const groupsSlice = createSlice({
         //     eachGroup.groupInfo = action.payload;
         //   }
         // });
-        console.log(state.userGroups, "groups reducer");
         // state.userGroups = action.payload;
         state.loading = false;
         state.error = null;
