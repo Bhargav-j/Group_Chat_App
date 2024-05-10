@@ -1,14 +1,15 @@
 import avatar from "./../../images/Avatar.png";
 import { fetchMessages } from "../../redux/actions/messageActions"; // Import message actions
 import { useContext, useEffect, useRef, useState } from "react";
-import { connect, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import { ChatContext } from "../../context/ChatContext";
 import { formatDateTime } from "./MessageTime";
+import { FcLike } from "react-icons/fc";
+import { AiFillLike } from "react-icons/ai";
+import { likeMessage } from "../../redux/reducers/messageReducer";
 
-const MessageList = ({ messages, loading, userId }) => {
+const MessageList = ({ dispatch, messages, loading, userId }) => {
   const { selectedGroupId } = useContext(ChatContext);
-
-  const dispatch = useDispatch();
 
   const [groupMessages, setGroupMessages] = useState([]);
 
@@ -33,6 +34,10 @@ const MessageList = ({ messages, loading, userId }) => {
     }
   }, [messages, selectedGroupId]);
 
+  const manageLikes = (groupId, messageContent) => {
+    dispatch(likeMessage({ groupId, messageContent, userId }));
+  };
+
   if (loading && groupMessages.length === 0) {
     return <div>Messages Loading</div>;
   }
@@ -44,7 +49,34 @@ const MessageList = ({ messages, loading, userId }) => {
           if (userId === eachMessage.senderId["_id"]) {
             return (
               /* Self Message */
-              <div key={eachMessage._id} className="flex justify-end mb-4">
+              <div
+                key={eachMessage._id}
+                className="flex justify-end mb-4 w-full "
+              >
+                {/* How many Likes */}
+                <div className="flex flex-col justify-end">
+                  {eachMessage.likes.length > 0 && (
+                    <div className="mr-4 mt-2 mb-6 text-xs font-semibold text-gray-400 flex relative">
+                      <FcLike size={26} />
+                      <p className="bg-black rounded-full w-4 h-4 flex justify-center items-center absolute -right-2">
+                        {eachMessage.likes.length}
+                      </p>
+                    </div>
+                  )}
+                  <div
+                    className="mr-4 mb-2 text-xs font-semibold text-gray-400 flex relative cursor-pointer"
+                    onClick={() =>
+                      manageLikes(eachMessage.groupId, eachMessage.content)
+                    }
+                  >
+                    {eachMessage.likes?.includes(userId) ? (
+                      <AiFillLike size={26} color="green" />
+                    ) : (
+                      <AiFillLike size={26} />
+                    )}
+                  </div>
+                </div>
+                {/* Message Content */}
                 <div className="rounded-lg bg-gray-100 overflow-hidden">
                   <div className="m-0 bg-gray-200 rounded-t-lg px-2 py-1 text-right">
                     {eachMessage.senderId.username}
@@ -68,7 +100,7 @@ const MessageList = ({ messages, loading, userId }) => {
           } else {
             return (
               /* other members messages */
-              <div key={eachMessage._id} className="flex mb-4">
+              <div key={eachMessage._id} className="flex mb-4 w-full ">
                 <img
                   src={avatar}
                   alt="User 1"
@@ -85,6 +117,29 @@ const MessageList = ({ messages, loading, userId }) => {
                     <div className="flex justify-end text-xs font-semibold text-gray-400 pt-1">
                       {formatDateTime(eachMessage.createdAt)}
                     </div>
+                  </div>
+                </div>
+                {/* How many Likes */}
+                <div className="flex flex-col justify-end">
+                  {eachMessage.likes.length > 0 && (
+                    <div className="ml-4 mt-2 mb-6 text-xs font-semibold text-gray-400 flex relative">
+                      <FcLike size={26} />
+                      <p className="bg-black rounded-full w-4 h-4 flex justify-center items-center absolute -right-2">
+                        {eachMessage.likes.length}
+                      </p>
+                    </div>
+                  )}
+                  <div
+                    className="ml-4 mb-2 text-xs font-semibold text-gray-400 flex relative"
+                    onClick={() =>
+                      manageLikes(eachMessage.groupId, eachMessage.content)
+                    }
+                  >
+                    {eachMessage.likes?.includes(userId) ? (
+                      <AiFillLike size={26} color="green" />
+                    ) : (
+                      <AiFillLike size={26} />
+                    )}
                   </div>
                 </div>
               </div>

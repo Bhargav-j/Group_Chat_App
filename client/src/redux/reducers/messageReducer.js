@@ -30,7 +30,8 @@ const messagesSlice = createSlice({
     },
     sendMessage(state, action) {
       if (action.payload) {
-        const { selectedGroupId: groupId, newMessage: message } = action.payload;
+        const { selectedGroupId: groupId, newMessage: message } =
+          action.payload;
 
         const updatedMessages = { ...state.messages };
 
@@ -51,12 +52,35 @@ const messagesSlice = createSlice({
       }
     },
     receiveMessage(state, action) {
-      console.log(action.payload);
       const { groupId, message } = action.payload;
       const updatedMessages = { ...state.messages };
 
       // Update the Fetched Messages array of that group
       updatedMessages[groupId].push(message); // Push new message to array
+      state.messages = updatedMessages; // Update state with the modified object
+    },
+    likeMessage(state, action) {
+      const { groupId, messageContent, userId } = action.payload;
+      const updatedMessages = { ...state.messages };
+
+      // Like the message in the array of that group
+      const groupMessages = updatedMessages[groupId];
+      // Edit the Likes Array
+      groupMessages.forEach((eachMessage) => {
+        if (eachMessage.content === messageContent) {
+          const updatedLikes = eachMessage.likes.slice();
+
+          if (updatedLikes.includes(userId)) {
+            updatedLikes.splice(updatedLikes.indexOf(userId), 1);
+          } else {
+            updatedLikes.push(userId);
+          }
+
+          eachMessage.likes = updatedLikes; // Assign the modified copy back
+        }
+      });
+
+      updatedMessages[groupId] = groupMessages;
       state.messages = updatedMessages; // Update state with the modified object
     },
 
@@ -100,6 +124,7 @@ const messagesSlice = createSlice({
 export const {
   receiveMessage,
   sendMessage,
+  likeMessage,
   clearMessages,
   receiveLastSingleMessage,
 } = messagesSlice.actions;

@@ -11,6 +11,5 @@ export const getMessages = async (groupID) => {
       Authorization: `Bearer ${accessToken}`, // Include token in Authorization header
     },
   });
-  console.log(response)
   return response;
 };
